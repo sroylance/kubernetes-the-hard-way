@@ -20,4 +20,9 @@ aws iam create-access-key --user-name hardway
 
 run aws configure again, with the keys returned above
 
+generate an SSH key pair with ssh-keygen and upload it
+```
+aws ec2 import-key-pair --key-name hardway --public-key-material "`ssh-keygen -y -f ~/.ssh/id_rsa`"
+```
+
 Next: [Installing the Client Tools](02-client-tools.md)

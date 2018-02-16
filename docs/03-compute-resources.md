@@ -354,6 +354,11 @@ worker3=`aws ec2 run-instances --subnet-id ${private_subnet3id} --private-ip-add
 aws ec2 create-tags --resources $worker3 --tag Key=Name,Value=worker-3 Key=KubernetesCluster,Value=hardway
 ```
 
+### trust SSH host keys
+ssh-keyscan -H ip-10-251-0-10 ip-10-251-4-10 ip-10-251-8-10 ip-10-251-0-20 ip-10-251-4-20 ip-10-251-8-20 >> ~/.ssh/known_hosts
+ssh-keyscan -H 10.251.0.10 10.251.4.10 10.251.8.10 10.251.0.20 10.251.4.20 10.251.8.20>> ~/.ssh/known_hosts
+
+
 ### API load balancers
 '''
 elbdns=`aws elb create-load-balancer --load-balancer-name kubernetes-api --subnets ${private_subnet1id} ${private_subnet1d} ${private_subnet3id} --scheme internal --listeners "Protocol=TCP,LoadBalancerPort=6443,InstanceProtocol=TCP,InstancePort=6443" --query "DNSName" --output text`

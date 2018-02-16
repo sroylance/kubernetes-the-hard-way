@@ -14,7 +14,7 @@ The commands in this lab must be run on each controller instance.
 Download the official etcd release binaries from the [coreos/etcd](https://github.com/coreos/etcd) GitHub project:
 
 ```
-wget -q --show-progress --https-only --timestamping \
+wget -q --show-progress --https-only --timestamping \\
   "https://github.com/coreos/etcd/releases/download/v3.2.11/etcd-v3.2.11-linux-amd64.tar.gz"
 ```
 

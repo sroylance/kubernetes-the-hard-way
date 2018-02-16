@@ -22,7 +22,7 @@ for instance in ip-10-251-0-20 ip-10-251-4-20 ip-10-251-8-20; do
     --server=https://${elbdns}:6443 \
     --kubeconfig=${instance}.kubeconfig
 
-  kubectl config set-credentials system:node:${instance} \
+  kubectl config set-credentials system:node:${instance}.ec2.internal \
     --client-certificate=${instance}.pem \
     --client-key=${instance}-key.pem \
     --embed-certs=true \
@@ -30,7 +30,7 @@ for instance in ip-10-251-0-20 ip-10-251-4-20 ip-10-251-8-20; do
 
   kubectl config set-context default \
     --cluster=kubernetes-the-hard-way \
-    --user=system:node:${instance} \
+    --user=system:node:${instance}.ec2.internal \
     --kubeconfig=${instance}.kubeconfig
 
   kubectl config use-context default --kubeconfig=${instance}.kubeconfig

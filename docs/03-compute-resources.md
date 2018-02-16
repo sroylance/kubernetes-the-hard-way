@@ -359,11 +359,17 @@ ssh-keyscan -H ip-10-251-0-10 ip-10-251-4-10 ip-10-251-8-10 ip-10-251-0-20 ip-10
 ssh-keyscan -H 10.251.0.10 10.251.4.10 10.251.8.10 10.251.0.20 10.251.4.20 10.251.8.20>> ~/.ssh/known_hosts
 
 
-### API load balancers
-'''
+## The Kubernetes Frontend Load Balancer
+In this section you will provision a load balancer to front the Kubernetes API Servers. Because AWS ELB's do not pass the client certificate, the ELB must work on raw TCP connection and not terminate SSL.
+
+> The compute instances created in this tutorial will not have permission to complete this section. Run the following commands from the same machine used to create the compute instances.
+
+Create the external load balancer network resources:
+```
 elbdns=`aws elb create-load-balancer --load-balancer-name kubernetes-api --subnets ${private_subnet1id} ${private_subnet1d} ${private_subnet3id} --scheme internal --listeners "Protocol=TCP,LoadBalancerPort=6443,InstanceProtocol=TCP,InstancePort=6443" --query "DNSName" --output text`
 aws elb register-instances-with-load-balancer --load-balancer-name kubernetes-api --instances $controller1 $controller2 $controller3
-'''
+aws elb apply-security-groups-to-load-balancer --load-balancer-name kubernetes-api --security-groups ${sgid}
+```
 
 ### Verification
 

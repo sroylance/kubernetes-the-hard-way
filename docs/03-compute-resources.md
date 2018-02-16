@@ -116,6 +116,23 @@ private_rtb3id=${private_rtb3id}
 EOF
 ```
 
+### Firewall Rules
+
+Create a firewall rule that allows internal communication across all protocols:
+
+```
+sgid=`aws ec2 create-security-group --vpc-id ${vpcid} --group-name hardway  --description "Allow everything from everywhere.  NEVER USE THIS FOR REAL" --query 'GroupId' --output=text`
+aws ec2 authorize-security-group-ingress  --group-id ${sgid} --protocol all  --cidr 0.0.0.0/0
+```
+
+### External access
+at this point the private kubernetes network is completely inaccesible from the outside.  You will need to create a mechanism that allows you to communicate with it such as a bastion host, VPC peering or a VPN connection.
+
+## Compute Instances
+
+The compute instances in this lab will be provisioned using [Debian](https://wiki.debian.org/Cloud/AmazonEC2Image/Stretch) 9. Each compute instance will be provisioned with a fixed private IP address to simplify the Kubernetes bootstrapping process.
+
+
 ### IAM instance profiles
 https://github.com/kubernetes/kops/blob/master/docs/iam_roles.md
 https://docs.aws.amazon.com/codedeploy/latest/userguide/getting-started-create-iam-instance-profile.html
@@ -309,21 +326,6 @@ aws iam add-role-to-instance-profile --instance-profile-name hardway-controllers
 aws iam create-instance-profile --instance-profile-name hardway-workers-Instance-Profile
 aws iam add-role-to-instance-profile --instance-profile-name hardway-workers-Instance-Profile --role-name hardway-workers
 ```
-
-
-
-### Firewall Rules
-
-Create a firewall rule that allows internal communication across all protocols:
-
-```
-sgid=`aws ec2 create-security-group --vpc-id ${vpcid} --group-name hardway  --description "Allow everything from everywhere.  NEVER USE THIS FOR REAL" --query 'GroupId' --output=text`
-aws ec2 authorize-security-group-ingress  --group-id ${sgid} --protocol all  --cidr 0.0.0.0/0
-```
-
-## Compute Instances
-
-The compute instances in this lab will be provisioned using [Debian](https://wiki.debian.org/Cloud/AmazonEC2Image/Stretch) 9. Each compute instance will be provisioned with a fixed private IP address to simplify the Kubernetes bootstrapping process.
 
 ### Kubernetes Controllers
 

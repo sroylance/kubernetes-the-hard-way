@@ -59,11 +59,15 @@ sudo mv kubectl kube-proxy kubelet /usr/local/bin/
 
 ### Configure CNI Networking
 
-Retrieve the Pod CIDR range for the current compute instance:
-
+Assign a different POD_CIDR on each worker
 ```
-POD_CIDR=$(curl -s -H "Metadata-Flavor: Google" \
-  http://metadata.google.internal/computeMetadata/v1/instance/attributes/pod-cidr)
+POD_CIDR=100.64.0.0/24
+```
+```
+POD_CIDR=100.64.1.0/24
+```
+```
+POD_CIDR=100.64.2.0/24
 ```
 
 Create the `bridge` network configuration file:
@@ -117,17 +121,6 @@ sudo mv ${HOSTNAME}.kubeconfig /var/lib/kubelet/kubeconfig
 
 ```
 sudo mv ca.pem /var/lib/kubernetes/
-```
-
-Assign a different POD_CIDR on each worker
-```
-POD_CIDR=100.64.0.0/24
-```
-```
-POD_CIDR=100.64.1.0/24
-```
-```
-POD_CIDR=100.64.2.0/24
 ```
 
 Create the `kubelet.service` systemd unit file:

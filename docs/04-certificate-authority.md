@@ -119,7 +119,7 @@ Generate a certificate and private key for each Kubernetes worker node:
 for instance in ip-10-251-0-20 ip-10-251-4-20 ip-10-251-8-20; do
 cat > ${instance}-csr.json <<EOF
 {
-  "CN": "system:node:${instance}",
+  "CN": "system:node:${instance}.ec2.internal",
   "key": {
     "algo": "rsa",
     "size": 2048

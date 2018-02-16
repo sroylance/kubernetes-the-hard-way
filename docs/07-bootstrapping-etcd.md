@@ -5,7 +5,7 @@ Kubernetes components are stateless and store cluster state in [etcd](https://gi
 ## Prerequisites
 
 The commands in this lab must be run on each controller instance.
-```
+
 
 ## Bootstrapping an etcd Cluster Member
 

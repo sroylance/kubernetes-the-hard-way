@@ -364,7 +364,6 @@ aws ec2 describe-instances --output text --query 'Reservations[*].Instances[*].{
 
 ```
 i-0bada7ef6bca59607     10.251.0.20     running
-i-03c97bc2eda08db09     172.31.54.229   running
 i-0cd8a9164c01b764f     10.251.0.10     running
 i-0448b1ef53cd4ad83     10.251.8.10     running
 i-05c1b5d64e171adbc     10.251.8.20     running

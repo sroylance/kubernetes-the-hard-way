@@ -1,47 +1,28 @@
 # Prerequisites
 
-## Google Cloud Platform
-
-This tutorial leverages the [Google Cloud Platform](https://cloud.google.com/) to streamline provisioning of the compute infrastructure required to bootstrap a Kubernetes cluster from the ground up. [Sign up](https://cloud.google.com/free/) for $300 in free credits.
-
-[Estimated cost](https://cloud.google.com/products/calculator/#id=78df6ced-9c50-48f8-a670-bc5003f2ddaa) to run this tutorial: $0.22 per hour ($5.39 per day).
-
-> The compute resources required for this tutorial exceed the Google Cloud Platform free tier.
-
-## Google Cloud Platform SDK
-
-### Install the Google Cloud SDK
-
-Follow the Google Cloud SDK [documentation](https://cloud.google.com/sdk/) to install and configure the `gcloud` command line utility.
-
-Verify the Google Cloud SDK version is 183.0.0 or higher:
+## Amazon web services
+Install the AWS CLI
+log in to your AWS account and generate an access and secret key for your account by clicking on 'My Security Credentials' on the account drop down
+run aws configure and, following the prompts, enter your preffered region and the keys retrieved from the UI
+the following creates an IAM user we will use for the remainder of the labs.  It has unlimited access to a number of AWS services, so use caution.
 
 ```
-gcloud version
+aws iam create-group --group-name hardway
+aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/AmazonEC2FullAccess --group-name hardway
+aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/AmazonRoute53FullAccess --group-name hardway
+aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/AmazonS3FullAccess --group-name hardway
+aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/IAMFullAccess --group-name hardway
+aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/AmazonVPCFullAccess --group-name hardway
+aws iam create-user --user-name hardway
+aws iam add-user-to-group --user-name hardway --group-name hardway
+aws iam create-access-key --user-name hardway
 ```
 
-### Set a Default Compute Region and Zone
+run aws configure again, with the keys returned above
 
-This tutorial assumes a default compute region and zone have been configured.
-
-If you are using the `gcloud` command-line tool for the first time `init` is the easiest way to do this:
-
+generate an SSH key pair with ssh-keygen and upload it
 ```
-gcloud init
+aws ec2 import-key-pair --key-name hardway --public-key-material "`ssh-keygen -y -f ~/.ssh/id_rsa`"
 ```
-
-Otherwise set a default compute region:
-
-```
-gcloud config set compute/region us-west1
-```
-
-Set a default compute zone:
-
-```
-gcloud config set compute/zone us-west1-c
-```
-
-> Use the `gcloud compute zones list` command to view additional regions and zones.
 
 Next: [Installing the Client Tools](02-client-tools.md)

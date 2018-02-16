@@ -4,11 +4,7 @@ In this lab you will bootstrap three Kubernetes worker nodes. The following comp
 
 ## Prerequisites
 
-The commands in this lab must be run on each worker instance: `worker-0`, `worker-1`, and `worker-2`. Login to each worker instance using the `gcloud` command. Example:
-
-```
-gcloud compute ssh worker-0
-```
+The commands in this lab must be run on each worker instance.
 
 ## Provisioning a Kubernetes Worker Node
 
@@ -63,11 +59,15 @@ sudo mv kubectl kube-proxy kubelet /usr/local/bin/
 
 ### Configure CNI Networking
 
-Retrieve the Pod CIDR range for the current compute instance:
-
+Assign a different POD_CIDR on each worker
 ```
-POD_CIDR=$(curl -s -H "Metadata-Flavor: Google" \
-  http://metadata.google.internal/computeMetadata/v1/instance/attributes/pod-cidr)
+POD_CIDR=100.64.0.0/24
+```
+```
+POD_CIDR=100.64.1.0/24
+```
+```
+POD_CIDR=100.64.2.0/24
 ```
 
 Create the `bridge` network configuration file:
@@ -139,8 +139,8 @@ ExecStart=/usr/local/bin/kubelet \\
   --anonymous-auth=false \\
   --authorization-mode=Webhook \\
   --client-ca-file=/var/lib/kubernetes/ca.pem \\
-  --cloud-provider= \\
-  --cluster-dns=10.32.0.10 \\
+  --cloud-provider=aws \\
+  --cluster-dns=10.251.252.10 \\
   --cluster-domain=cluster.local \\
   --container-runtime=remote \\
   --container-runtime-endpoint=unix:///var/run/cri-containerd.sock \\
@@ -177,7 +177,7 @@ Documentation=https://github.com/kubernetes/kubernetes
 
 [Service]
 ExecStart=/usr/local/bin/kube-proxy \\
-  --cluster-cidr=10.200.0.0/16 \\
+  --cluster-cidr=100.64.0.0/10 \\
   --kubeconfig=/var/lib/kube-proxy/kubeconfig \\
   --proxy-mode=iptables \\
   --v=2
@@ -207,15 +207,11 @@ sudo systemctl enable containerd cri-containerd kubelet kube-proxy
 sudo systemctl start containerd cri-containerd kubelet kube-proxy
 ```
 
-> Remember to run the above commands on each worker node: `worker-0`, `worker-1`, and `worker-2`.
+> Remember to run the above commands on each worker node.
 
 ## Verification
 
 Login to one of the controller nodes:
-
-```
-gcloud compute ssh controller-0
-```
 
 List the registered Kubernetes nodes:
 

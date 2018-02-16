@@ -16,8 +16,7 @@ kubectl create secret generic kubernetes-the-hard-way \
 Print a hexdump of the `kubernetes-the-hard-way` secret stored in etcd:
 
 ```
-gcloud compute ssh controller-0 \
-  --command "ETCDCTL_API=3 etcdctl get /registry/secrets/default/kubernetes-the-hard-way | hexdump -C"
+ssh ip-10-251-0-10 "ETCDCTL_API=3 etcdctl get /registry/secrets/default/kubernetes-the-hard-way | hexdump -C"
 ```
 
 > output
@@ -154,40 +153,21 @@ nginx version: nginx/1.13.7
 
 In this section you will verify the ability to expose applications using a [Service](https://kubernetes.io/docs/concepts/services-networking/service/).
 
-Expose the `nginx` deployment using a [NodePort](https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport) service:
+Expose the `nginx` deployment using a [loadBalancer](https://kubernetes.io/docs/concepts/services-networking/service/#type-loadbalancer) service:
 
 ```
 kubectl expose deployment nginx --port 80 --type NodePort
 ```
-
-> The LoadBalancer service type can not be used because your cluster is not configured with [cloud provider integration](https://kubernetes.io/docs/getting-started-guides/scratch/#cloud-provider). Setting up cloud provider integration is out of scope for this tutorial.
-
-Retrieve the node port assigned to the `nginx` service:
+Retrieve the ELB DNS assigned to the `nginx` service:
 
 ```
-NODE_PORT=$(kubectl get svc nginx \
-  --output=jsonpath='{range .spec.ports[0]}{.nodePort}')
+ELB=`kubectl get svc nginx --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'`
 ```
 
-Create a firewall rule that allows remote access to the `nginx` node port:
+Make an HTTP request using the ELB:
 
 ```
-gcloud compute firewall-rules create kubernetes-the-hard-way-allow-nginx-service \
-  --allow=tcp:${NODE_PORT} \
-  --network kubernetes-the-hard-way
-```
-
-Retrieve the external IP address of a worker instance:
-
-```
-EXTERNAL_IP=$(gcloud compute instances describe worker-0 \
-  --format 'value(networkInterfaces[0].accessConfigs[0].natIP)')
-```
-
-Make an HTTP request using the external IP address and the `nginx` node port:
-
-```
-curl -I http://${EXTERNAL_IP}:${NODE_PORT}
+curl -I http://${ELB}
 ```
 
 > output

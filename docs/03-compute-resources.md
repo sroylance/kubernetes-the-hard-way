@@ -352,6 +352,12 @@ worker3=`aws ec2 run-instances --subnet-id ${private_subnet3id} --private-ip-add
 aws ec2 create-tags --resources $worker3 --tag Key=Name,Value=worker-3 Key=KubernetesCluster,Value=hardway
 ```
 
+### API load balancers
+'''
+elbdns=`aws elb create-load-balancer --load-balancer-name kubernetes-api --subnets ${private_subnet1id} ${private_subnet1d} ${private_subnet3id} --scheme internal --listeners "Protocol=TCP,LoadBalancerPort=6443,InstanceProtocol=TCP,InstancePort=6443" --query "DNSName" --output text`
+aws elb register-instances-with-load-balancer --load-balancer-name kubernetes-api --instances $controller1 $controller2 $controller3
+'''
+
 ### Verification
 
 List the compute instances in your default compute zone:

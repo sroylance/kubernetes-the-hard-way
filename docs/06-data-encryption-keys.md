@@ -35,8 +35,8 @@ EOF
 Copy the `encryption-config.yaml` encryption config file to each controller instance:
 
 ```
-for instance in controller-0 controller-1 controller-2; do
-  gcloud compute scp encryption-config.yaml ${instance}:~/
+for instance in ip-10-251-0-10 ip-10-251-4-10 ip-10-251-8-10; do
+  scp encryption-config.yaml ${instance}:~/
 done
 ```
 

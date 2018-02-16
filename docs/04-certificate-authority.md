@@ -116,7 +116,7 @@ Kubernetes uses a [special-purpose authorization mode](https://kubernetes.io/doc
 Generate a certificate and private key for each Kubernetes worker node:
 
 ```
-for instance in worker-0 worker-1 worker-2; do
+for instance in ip-10-251-0-20 ip-10-251-4-20 ip-10-251-8-20; do
 cat > ${instance}-csr.json <<EOF
 {
   "CN": "system:node:${instance}",
@@ -135,32 +135,40 @@ cat > ${instance}-csr.json <<EOF
   ]
 }
 EOF
-
-EXTERNAL_IP=$(gcloud compute instances describe ${instance} \
-  --format 'value(networkInterfaces[0].accessConfigs[0].natIP)')
-
-INTERNAL_IP=$(gcloud compute instances describe ${instance} \
-  --format 'value(networkInterfaces[0].networkIP)')
+done
 
 cfssl gencert \
   -ca=ca.pem \
   -ca-key=ca-key.pem \
   -config=ca-config.json \
-  -hostname=${instance},${EXTERNAL_IP},${INTERNAL_IP} \
+  -hostname=ip-10-251-0-20.ec2.internal,ip-10-251-0-20,10.251.0.20 \
   -profile=kubernetes \
-  ${instance}-csr.json | cfssljson -bare ${instance}
-done
+  ip-10-251-0-20-csr.json | cfssljson -bare ip-10-251-0-20
+cfssl gencert \
+  -ca=ca.pem \
+  -ca-key=ca-key.pem \
+  -config=ca-config.json \
+  -hostname=ip-10-251-4-20.ec2.internal,ip-10-251-4-20,10.251.4.20 \
+  -profile=kubernetes \
+  ip-10-251-4-20-csr.json | cfssljson -bare ip-10-251-4-20
+cfssl gencert \
+  -ca=ca.pem \
+  -ca-key=ca-key.pem \
+  -config=ca-config.json \
+  -hostname=ip-10-251-8-20.ec2.internal,ip-10-251-8-20,10.251.8.20 \
+  -profile=kubernetes \
+  ip-10-251-8-20-csr.json | cfssljson -bare ip-10-251-8-20
 ```
 
 Results:
 
 ```
-worker-0-key.pem
-worker-0.pem
-worker-1-key.pem
-worker-1.pem
-worker-2-key.pem
-worker-2.pem
+ip-10-251-0-20-key.pem
+ip-10-251-0-20.pem
+ip-10-251-4-20-key.pem
+ip-10-251-4-20.pem
+ip-10-251-8-20-key.pem
+ip-10-251-8-20.pem
 ```
 
 ### The kube-proxy Client Certificate
@@ -208,15 +216,9 @@ kube-proxy.pem
 
 ### The Kubernetes API Server Certificate
 
-The `kubernetes-the-hard-way` static IP address will be included in the list of subject alternative names for the Kubernetes API Server certificate. This will ensure the certificate can be validated by remote clients.
+The `kubernetes-the-hard-way` ELB DNS name will be included in the list of subject alternative names for the Kubernetes API Server certificate. This will ensure the certificate can be validated by remote clients.
 
 Retrieve the `kubernetes-the-hard-way` static IP address:
-
-```
-KUBERNETES_PUBLIC_ADDRESS=$(gcloud compute addresses describe kubernetes-the-hard-way \
-  --region $(gcloud config get-value compute/region) \
-  --format 'value(address)')
-```
 
 Create the Kubernetes API Server certificate signing request:
 
@@ -248,7 +250,7 @@ cfssl gencert \
   -ca=ca.pem \
   -ca-key=ca-key.pem \
   -config=ca-config.json \
-  -hostname=10.32.0.1,10.240.0.10,10.240.0.11,10.240.0.12,${KUBERNETES_PUBLIC_ADDRESS},127.0.0.1,kubernetes.default \
+  -hostname=10.251.252.1,10.251.0.10,10.251.4.10,10.251.8.10,127.0.0.1,kubernetes.default,$elbdns \
   -profile=kubernetes \
   kubernetes-csr.json | cfssljson -bare kubernetes
 ```
@@ -265,17 +267,17 @@ kubernetes.pem
 Copy the appropriate certificates and private keys to each worker instance:
 
 ```
-for instance in worker-0 worker-1 worker-2; do
-  gcloud compute scp ca.pem ${instance}-key.pem ${instance}.pem ${instance}:~/
-done
+scp ca.pem ip-10-251-0-20-key.pem ip-10-251-0-20.pem 10.251.0.20:~/
+scp ca.pem ip-10-251-4-20-key.pem ip-10-251-4-20.pem 10.251.4.20:~/
+scp ca.pem ip-10-251-8-20-key.pem ip-10-251-8-20.pem 10.251.8.20:~/
 ```
 
 Copy the appropriate certificates and private keys to each controller instance:
 
 ```
-for instance in controller-0 controller-1 controller-2; do
-  gcloud compute scp ca.pem ca-key.pem kubernetes-key.pem kubernetes.pem ${instance}:~/
-done
+scp ca.pem ca-key.pem kubernetes-key.pem kubernetes.pem 10.251.0.10:~/
+scp ca.pem ca-key.pem kubernetes-key.pem kubernetes.pem 10.251.4.10:~/
+scp ca.pem ca-key.pem kubernetes-key.pem kubernetes.pem 10.251.8.10:~/
 ```
 
 > The `kube-proxy` and `kubelet` client certificates will be used to generate client authentication configuration files in the next lab.

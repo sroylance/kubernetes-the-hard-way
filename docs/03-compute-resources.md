@@ -93,7 +93,7 @@ aws ec2 associate-route-table  --subnet-id ${private_subnet3id} --route-table-id
 ```
 
 
-
+```
 cat > hardway.env <<EOF
 vpcid=${vpcid}
 igwid=${igwid}
@@ -114,6 +114,7 @@ private_rtb1id=${private_rtb1id}
 private_rtb2id=${private_rtb2id}
 private_rtb3id=${private_rtb3id}
 EOF
+```
 
 ### IAM instance profiles
 https://github.com/kubernetes/kops/blob/master/docs/iam_roles.md

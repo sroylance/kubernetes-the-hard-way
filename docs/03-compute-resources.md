@@ -92,30 +92,6 @@ aws ec2 create-route --route-table-id ${private_rtb3id} --destination-cidr-block
 aws ec2 associate-route-table  --subnet-id ${private_subnet3id} --route-table-id ${private_rtb3id}
 ```
 
-
-```
-cat > hardway.env <<EOF
-vpcid=${vpcid}
-igwid=${igwid}
-rtbid=${rtbid}
-subnet1id=${subnet1id}
-subnet2id=${subnet2id}
-subnet3id=${subnet3id}
-eip1id=${eip1id}
-eip2id=${eip2id}
-eip3id=${eip3id}
-natgw1id=${natgw1id}
-natgw2id=${natgw2id}
-natgw3id=${natgw3id}
-private_subnet1id=${private_subnet1id}
-private_subnet2id=${private_subnet2id}
-private_subnet3id=${private_subnet3id}
-private_rtb1id=${private_rtb1id}
-private_rtb2id=${private_rtb2id}
-private_rtb3id=${private_rtb3id}
-EOF
-```
-
 ### Firewall Rules
 
 Create a firewall rule that allows internal communication across all protocols:
@@ -369,6 +345,38 @@ Create the external load balancer network resources:
 elbdns=`aws elb create-load-balancer --load-balancer-name kubernetes-api --subnets ${private_subnet1id} ${private_subnet1d} ${private_subnet3id} --scheme internal --listeners "Protocol=TCP,LoadBalancerPort=6443,InstanceProtocol=TCP,InstancePort=6443" --query "DNSName" --output text`
 aws elb register-instances-with-load-balancer --load-balancer-name kubernetes-api --instances $controller1 $controller2 $controller3
 aws elb apply-security-groups-to-load-balancer --load-balancer-name kubernetes-api --security-groups ${sgid}
+```
+
+```
+cat > hardway.env <<EOF
+vpcid=${vpcid}
+igwid=${igwid}
+rtbid=${rtbid}
+subnet1id=${subnet1id}
+subnet2id=${subnet2id}
+subnet3id=${subnet3id}
+eip1id=${eip1id}
+eip2id=${eip2id}
+eip3id=${eip3id}
+natgw1id=${natgw1id}
+natgw2id=${natgw2id}
+natgw3id=${natgw3id}
+private_subnet1id=${private_subnet1id}
+private_subnet2id=${private_subnet2id}
+private_subnet3id=${private_subnet3id}
+private_rtb1id=${private_rtb1id}
+private_rtb2id=${private_rtb2id}
+private_rtb3id=${private_rtb3id}
+elbdns=${elbdns}
+sgid=${sgid}
+controller1=${controller1}
+controller2=${controller2}
+controller3=${controller3}
+worker1=${worker1}
+worker2=${worker2}
+worker3=${worker3}
+
+EOF
 ```
 
 ### Verification
